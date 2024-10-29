@@ -6,7 +6,7 @@ Bem-vindo ao repositório focado em Desenvolvimento Web!
 
 ### Descrição
 
-Aqui postarei os projetos e trabalhos feitos no nesse Módulo.
+Aqui postarei os projetos e trabalhos feitos nesse Módulo.
 ### Estrutura do Projeto
 
 ```
