@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro Pet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(206, 205, 205);
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        div {
+            background-color: white;
+            padding: 70px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.1);
+            width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            color: black;
+        }
+
+        #cadastro {
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        input,
+        select {
+            font-size: 20px;
+            margin-top: 10px;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0px 6px 10px rgb(0, 0, 0, 0.1);
+        }
+
+        #Cadastrar {
+            background-color: greenyellow;
+            border-radius: 5px;
+            margin-top: 30px;
+        }
+
+        label {
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cadastro">
+        <h1>Cadastro Pet</h1>
+        <label>Nome do Pet</label>
+        <input type="text" id="NomePet" placeholder="Digite o nome do Pet">
+
+
+        <label>Tipo do Animal</label>
+        <select name="Especie" id="">
+            <option value=""> Cachorro</option>
+            <option value=""> Gato</option>
+            <option value="">Furão</option>
+            <option value=""> Reptil</option>
+            <option value=""> Aves</option>
+            <option value=""></option>
+        </select>
+
+
+        <label> Idade </label>
+        <input type="text" id="idade" placeholder="Digite a idade do Pet">
+
+
+        <label> Nome do Dono</label>
+        <input type="text" id="NomeDono" placeholder="Digite o Nome do Dono">
+
+
+        <input type="button" value="Cadastrar" id="Cadastrar">
+    </div>
+</body>
+
+</html>
