@@ -13,30 +13,6 @@ Este projeto é uma landing page simples desenvolvida utilizando **HTML**, **CSS
 - **CSS**: Estilização personalizada.
 - **Bootstrap**: Framework para design responsivo e componentes prontos.
 
-## Estrutura do Projeto
-
-```
-/landing-page
-│
-├── index.html          # Arquivo principal da landing page
-├── css
-│   └── styles.css      # Estilos personalizados
-└── img                 # Diretório para imagens
-    └── logo.png        # Exemplo de logo
-```
-
-## Instalação
-
-1. **Clone o repositório**:
-   ```bash
-   git clone https://github.com/GustaBaron/Vendas_Curso-2.0
-   cd landing-page
-   ```
-
-2. **Abra o arquivo `index.html` em um navegador** para visualizar a landing page.
-
-
-
 ## Recursos
 
 - **Seções da Página**:
