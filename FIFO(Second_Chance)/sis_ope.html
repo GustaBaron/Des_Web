@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador de Substituição de Página - Second Chance (Relógio)</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+      background: #f3f4f6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .controls {
+      margin: 20px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    input {
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    input[type="number"] {
+      width: 80px;
+    }
+
+    button {
+      padding: 10px 16px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #3498db;
+      color: white;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    button.start-btn {
+      background-color: #2ecc71;
+    }
+    button.start-btn:hover {
+      background-color: #27ae60;
+    }
+
+    .container {
+      display: flex;
+      gap: 30px;
+      width: 100%;
+      max-width: 1000px;
+      margin-top: 20px;
+    }
+
+    .frames-container {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .frames-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #555;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .frames {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .frame {
+      padding: 15px;
+      background-color: #e9ecef;
+      border-radius: 8px;
+      color: #495057;
+      font-weight: bold;
+      font-size: 1.1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .frame.pointer {
+      border-color: #e74c3c; /* Destaque do ponteiro */
+    }
+    .frame.empty {
+      color: #adb5bd;
+      font-style: italic;
+    }
+    .frame.hit {
+        animation: hitAnim 0.5s ease;
+    }
+    .frame.replaced {
+        animation: replaceAnim 0.5s ease;
+    }
+
+    .frame .page-id {
+      font-family: "Courier New", Courier, monospace;
+    }
+    .frame .r-bit {
+      font-size: 0.9rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #ccc;
+      color: #333;
+    }
+    .frame .r-bit.active {
+      background: #f39c12; /* R-Bit = 1 */
+      color: white;
+    }
+
+    .log-container {
+      flex: 1.5;
+      background: #2d3748;
+      color: #f7fafc;
+      padding: 20px;
+      border-radius: 8px;
+      height: 400px;
+      overflow-y: auto;
+      font-family: "Courier New", Courier, monospace;
+    }
+    .log-container h3 {
+      margin-top: 0;
+      border-bottom: 1px solid #4a5568;
+      padding-bottom: 10px;
+    }
+    .log-container div {
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #4a5568;
+    }
+    .log-container .fault { color: #e74c3c; font-weight: bold; }
+    .log-container .hit { color: #2ecc71; font-weight: bold; }
+    .log-container .info { color: #3498db; }
+    .log-container .replace { color: #f39c12; }
+    
+    @keyframes hitAnim {
+      0% { transform: scale(1); background-color: #e9ecef; }
+      50% { transform: scale(1.05); background-color: #2ecc71; color: white; }
+      100% { transform: scale(1); background-color: #e9ecef; }
+    }
+    @keyframes replaceAnim {
+      0% { transform: scale(1); background-color: #e9ecef; }
+      50% { transform: scale(0.95); background-color: #e74c3c; color: white; }
+      100% { transform: scale(1); background-color: #e9ecef; }
+    }
+    
+  </style>
+</head>
+<body>
+  <h1>Simulador FIFO Second Chance (Algoritmo do Relógio)</h1>
+
+  <div class="controls">
+    <label for="frameSize">Nº de Frames:</label>
+    <input type="number" id="frameSize" value="4" min="1" max="10" />
+    <button onclick="startSimulation()" class="start-btn">
+      Iniciar / Resetar
+    </button>
+    <span style="border-left: 1px solid #ccc; height: 30px"></span>
+    <label for="pageInput">Acessar Página:</label>
+    <input type="text" id="pageInput" placeholder="Ex: A, B, 1, 2..." />
+    <button onclick="accessPage()">Acessar</button>
+  </div>
+
+  <div class="container">
+    <div class="frames-container">
+      <div class="frames-title">Frames de Memória (Ponteiro ➔)</div>
+      <div class="frames" id="frames"></div>
+    </div>
+    <div class="log-container" id="logContainer">
+      <h3>Log de Eventos</h3>
+    </div>
+  </div>
+
+  <script>
+    let frames = [];
+    let maxFrames = 0;
+    let pointer = 0;
+    const logContainer = document.getElementById("logContainer");
+
+    function startSimulation() {
+      maxFrames = parseInt(document.getElementById("frameSize").value) || 4;
+      frames = [];
+      for (let i = 0; i < maxFrames; i++) {
+        frames.push({ page: null, rBit: 0 });
+      }
+      pointer = 0;
+      logContainer.innerHTML = "<h3>Log de Eventos</h3>";
+      logMessage("Simulação iniciada com " + maxFrames + " frames.", "info");
+      renderFrames();
+    }
+
+    function logMessage(message, type = "") {
+      const logEntry = document.createElement("div");
+      logEntry.textContent = `> ${message}`;
+      if (type) {
+        logEntry.className = type;
+      }
+      logContainer.appendChild(logEntry);
+      logContainer.scrollTop = logContainer.scrollHeight; // Auto-scroll
+    }
+
+    function renderFrames(hitIndex = -1, replacedIndex = -1) {
+      const container = document.getElementById("frames");
+      container.innerHTML = "";
+      frames.forEach((frame, index) => {
+        const div = document.createElement("div");
+        div.className = "frame";
+        
+        if (frame.page === null) {
+          div.classList.add("empty");
+          div.innerHTML = `<span class="page-id">[Vazio]</span> <span class="r-bit">R: ${frame.rBit}</span>`;
+        } else {
+          div.innerHTML = `<span class="page-id">Página: ${frame.page}</span> <span class="r-bit ${frame.rBit === 1 ? 'active' : ''}">R: ${frame.rBit}</span>`;
+        }
+
+        if (index === pointer) {
+          div.classList.add("pointer"); // Destaca o frame do ponteiro
+        }
+        if (index === hitIndex) {
+            div.classList.add("hit"); // Animação de hit
+        }
+        if (index === replacedIndex) {
+            div.classList.add("replaced"); // Animação de replace
+        }
+
+        container.appendChild(div);
+      });
+    }
+
+    function accessPage() {
+      const input = document.getElementById("pageInput");
+      const pageId = input.value.trim().toUpperCase();
+      if (pageId === "") {
+        alert("Digite um identificador para a página!");
+        return;
+      }
+      input.value = "";
+      input.focus();
+
+      logMessage(`Acessando página: ${pageId}`);
+
+      // 1. Verificar se a página já está na memória (Page Hit)
+      const hitIndex = frames.findIndex((frame) => frame.page === pageId);
+      if (hitIndex !== -1) {
+        logMessage(`PAGE HIT! Página ${pageId} já está no frame ${hitIndex}.`, "hit");
+        frames[hitIndex].rBit = 1; // Dá a segunda chance
+        logMessage(`R-Bit da Página ${pageId} definido como 1.`);
+        renderFrames(hitIndex);
+        return;
+      }
+
+      // 2. Page Fault - Página não está na memória
+      logMessage(`PAGE FAULT! Página ${pageId} não encontrada na memória.`, "fault");
+
+      // 2a. Verificar se há um frame vazio
+      const emptyIndex = frames.findIndex((frame) => frame.page === null);
+      if (emptyIndex !== -1) {
+        logMessage(`Espaço vazio encontrado no frame ${emptyIndex}.`);
+        frames[emptyIndex] = { page: pageId, rBit: 0 }; // Nova página entra com R-bit 0
+        logMessage(`Página ${pageId} alocada no frame ${emptyIndex}.`);
+        renderFrames(-1, emptyIndex);
+        return;
+      }
+
+      // 3. Page Fault e Memória Cheia - Executar Algoritmo Second Chance (Relógio)
+      logMessage("Memória cheia. Iniciando algoritmo Second Chance (Relógio)...", "info");
+      
+      // Procura a partir do ponteiro atual
+      while (true) {
+        logMessage(`Verificando frame ${pointer} (Página ${frames[pointer].page}, R-Bit: ${frames[pointer].rBit})`);
+        
+        if (frames[pointer].rBit === 0) {
+          // Encontrou! Substitui esta página
+          const oldPage = frames[pointer].page;
+          logMessage(`Página ${oldPage} (R-Bit=0) será substituída no frame ${pointer}.`, "replace");
+          frames[pointer] = { page: pageId, rBit: 0 }; // Nova página entra com R-bit 0
+          
+          const replacedIndex = pointer; // Salva o índice para animar
+          pointer = (pointer + 1) % maxFrames; // Avança o ponteiro
+          
+          logMessage(`Página ${pageId} alocada. Ponteiro avança para ${pointer}.`);
+          renderFrames(-1, replacedIndex);
+          break; // Sai do loop
+          
+        } else {
+          // R-Bit é 1. Dá a segunda chance.
+          logMessage(`Página ${frames[pointer].page} (R-Bit=1) ganha segunda chance.`, "info");
+          frames[pointer].rBit = 0; // Zera o R-bit
+          
+          pointer = (pointer + 1) % maxFrames; // Avança o ponteiro
+          logMessage(`R-Bit zerado. Ponteiro avança para ${pointer}.`);
+          renderFrames(); // Renderiza para mostrar o R-bit zerado e o ponteiro movido
+        }
+      }
+    }
+
+    // Inicia a simulação ao carregar
+    startSimulation();
+  </script>
+</body>
+</html>
